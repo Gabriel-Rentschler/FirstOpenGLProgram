@@ -46,9 +46,16 @@ int main() {
 	//First two params set the location of the lower left corner of the window, the other two set width and height.
 	glViewport(0, 0, 800, 600);
 
+	//Render loop
 	while (!glfwWindowShouldClose(window)) {
+		//Input
 		processInput(window);
 
+		//Rendering
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		//Call Events and Buffer Swap
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
