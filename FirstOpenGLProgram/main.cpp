@@ -7,6 +7,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
+void processInput(GLFWwindow* window) {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		glfwSetWindowShouldClose(window, true);
+	}
+}
+
 int main() {
 	//glfw initializes, we pass the minor and major version we want of OpenGL to run, which is version 3
 	//we also set the core profile as the default
@@ -41,6 +47,8 @@ int main() {
 	glViewport(0, 0, 800, 600);
 
 	while (!glfwWindowShouldClose(window)) {
+		processInput(window);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
