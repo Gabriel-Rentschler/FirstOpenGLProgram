@@ -51,7 +51,10 @@ int main() {
 		//Input
 		processInput(window);
 
-		//Rendering
+		/////////////
+		//Rendering//
+		/////////////
+		//Clear the screen to a specific color (the example is a green)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
