@@ -13,6 +13,7 @@ void processInput(GLFWwindow* window) {
 	}
 }
 
+
 int main() {
 	//glfw initializes, we pass the minor and major version we want of OpenGL to run, which is version 3
 	//we also set the core profile as the default
@@ -26,6 +27,23 @@ int main() {
 
 	//set the function we created to be called on every window resize.
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	//Create de Normalized Device Coordinates NDC
+	float vertices[]{
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f
+	};
+
+	//Create the Vertex Buffer Object VBO
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
+
+	//Bind the buffer object to the ARRAY_BUFFER type, which is a VBO type
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	//Copy the vertex data to GPU memory | If the data was to change a lot of times, use GL_DYNAMIC_DRAW instead
+	glBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	//Checks if window is not created, print message, terminate glfw.
 	if (window == NULL) {
