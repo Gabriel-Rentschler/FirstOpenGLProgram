@@ -83,8 +83,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Gabriel\source\OpenGL\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Gabriel\source\OpenGL\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Gabriel\source\OpenGL\include;C:\Users\Kyouki\source\OpenGL\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Kyouki\source\OpenGL\lib;C:\Users\Gabriel\source\OpenGL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -152,7 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c" />
+    <ClCompile Include="..\..\..\..\Downloads\glad.c" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
