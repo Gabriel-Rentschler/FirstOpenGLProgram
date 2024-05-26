@@ -4,9 +4,15 @@
 #include "main.h"
 
 const char *vertexShaderSource = "#version 330 core\n"
-"layout(location 0) in vec3 aPos;\n"
+"layout (location = 0) in vec3 aPos;\n"
 "void main() {\n"
 	"gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"}\0";
+
+const char* fragmentShaderSource = "#version 330 core\n"
+"out vec4 ColorRGBA;\n"
+"void main() {\n"
+"	ColorRGBA = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -19,7 +25,22 @@ void processInput(GLFWwindow* window) {
 	}
 }
 
-unsigned int VBO;
+void shaderCompile(unsigned int shader) {
+	int success;
+	char infoLog[512];
+
+	//Attach the shader source code to the object and compile it
+	glShaderSource(shader, 1, &vertexShaderSource, NULL);
+	glCompileShader(shader);
+
+	//Check if compiled succesfully
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+	if (!success) {
+		glGetShaderInfoLog(shader, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+}
 
 int main() {
 	//glfw initializes, we pass the minor and major version we want of OpenGL to run, which is version 3
@@ -55,19 +76,28 @@ int main() {
 
 	//Create Vertex shader
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-	//Attach the shader source code to the object and compile it
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
+	//Compile shader
+	shaderCompile(vertexShader);
+
+	//SHADER PROGRAM
+	unsigned int shaderProgram = glCreateProgram();
+
+	//Attach the shaders into the program and run the linker
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
 
 	int success;
 	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success) {
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED" << infoLog << std::endl;
 	}
+
+	glUseProgram(shaderProgram);
 
 	//\/\/\/\/\/\/\/\/\/\//
 	//    VERTEX DATA    //
