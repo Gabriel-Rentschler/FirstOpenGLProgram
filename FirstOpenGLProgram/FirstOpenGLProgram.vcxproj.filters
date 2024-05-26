@@ -31,5 +31,8 @@
     <Text Include="VertexShader.txt">
       <Filter>Arquivos de Origem</Filter>
     </Text>
+    <Text Include="FragmentShader.txt">
+      <Filter>Arquivos de Origem</Filter>
+    </Text>
   </ItemGroup>
 </Project>
