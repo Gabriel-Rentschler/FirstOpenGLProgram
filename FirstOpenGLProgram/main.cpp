@@ -3,6 +3,9 @@
 #include <iostream>
 #include "main.h"
 
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
+
 const char *vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "void main() {\n"
@@ -10,9 +13,9 @@ const char *vertexShaderSource = "#version 330 core\n"
 "}\0";
 
 const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 ColorRGBA;\n"
+"out vec4 RGBA;\n"
 "void main() {\n"
-"	ColorRGBA = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"	RGBA = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -25,12 +28,12 @@ void processInput(GLFWwindow* window) {
 	}
 }
 
-void shaderCompile(unsigned int shader) {
+void shaderCompile(unsigned int shader, const char* shaderSource, const char* message) {
 	int success;
 	char infoLog[512];
 
 	//Attach the shader source code to the object and compile it
-	glShaderSource(shader, 1, &vertexShaderSource, NULL);
+	glShaderSource(shader, 1, &shaderSource, NULL);
 	glCompileShader(shader);
 
 	//Check if compiled succesfully
@@ -38,7 +41,7 @@ void shaderCompile(unsigned int shader) {
 
 	if (!success) {
 		glGetShaderInfoLog(shader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cout << "ERROR::SHADER::" << message <<"::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 }
 
@@ -51,7 +54,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);	
 
 	//Creates window, 800x600 and sets the title
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Hello OpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Hello OpenGL", NULL, NULL);
 	//Checks if window is not created, print message, terminate glfw.
 	if (window == NULL) {
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -74,12 +77,13 @@ int main() {
 	//      SHADERS      //
 	//\/\/\/\/\/\/\/\/\/\//
 
-	//Create Vertex shader
+	//Create and compile Vertex shader
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	shaderCompile(vertexShader, vertexShaderSource, "VERTEX");
 
-	//Compile shader
-	shaderCompile(vertexShader);
+	//Create and compile fragment shader
+	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	shaderCompile(fragmentShader, fragmentShaderSource, "FRAGMENT");
 
 	//SHADER PROGRAM
 	unsigned int shaderProgram = glCreateProgram();
@@ -98,9 +102,6 @@ int main() {
 		std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED" << infoLog << std::endl;
 	}
 
-	//Activate the shader program
-	glUseProgram(shaderProgram);
-
 	//Delete the shaders, since it is already linked to the program they won't be used anymore
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
@@ -116,9 +117,15 @@ int main() {
 		0.0f, 0.5f, 0.0f
 	};
 
+	//Create VAO (Vertex Array Object)
+	unsigned int VAO, VBO;
+	glGenVertexArrays(1, &VAO);
+
 	//Create the Vertex Buffer Object VBO
-	unsigned int VBO;
 	glGenBuffers(1, &VBO);
+
+	//Bind the VAO | All VBOs will be stored here from now on
+	glBindVertexArray(VAO);
 
 	//Bind the buffer object to the ARRAY_BUFFER type, which is a VBO type
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -126,9 +133,12 @@ int main() {
 	//Copy the vertex data to GPU memory | If the data was to change a lot of times, use GL_DYNAMIC_DRAW instead
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	//GLAD tells OpenGL size of the rendering window to do math right and display with respect to the window size.
-	//First two params set the location of the lower left corner of the window, the other two set width and height.
-	glViewport(0, 0, 800, 600);
+	//Show OpenGL how to interpret the vertex data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -141,6 +151,12 @@ int main() {
 		//Clear the screen to a specific color (the example is a green)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		//Draw the object
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		//Draw triangle primitives, starting at index 0 on the VAO, using 3 vertices
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		//Call Events and Buffer Swap
 		glfwSwapBuffers(window);
