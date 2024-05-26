@@ -89,6 +89,7 @@ int main() {
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
 
+	//Check for compile errors
 	int success;
 	char infoLog[512];
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -97,7 +98,12 @@ int main() {
 		std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED" << infoLog << std::endl;
 	}
 
+	//Activate the shader program
 	glUseProgram(shaderProgram);
+
+	//Delete the shaders, since it is already linked to the program they won't be used anymore
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 
 	//\/\/\/\/\/\/\/\/\/\//
 	//    VERTEX DATA    //
