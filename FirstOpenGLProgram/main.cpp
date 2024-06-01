@@ -111,21 +111,53 @@ int main() {
 	//\/\/\/\/\/\/\/\/\/\//
 
 	//Create the Normalized Device Coordinates NDC
-	float vertices[]{
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f
+	float vertices[] {
+		-0.5f, -0.5f, 0.0f, //bottom left
+		0.5f, -0.5f, 0.0f, //bottom right
+		0.0f, 0.5f, 0.0f //middle top
+	};
+
+	//Create a EBO for a rectangle
+	float recVertices[]{
+		0.7f, 0.7f, 0.0f, //top right
+		0.7f, 0.5f, 0.0f, //bottom right
+		0.5f, 0.5f, 0.0f, //bottom left
+		0.5f, 0.7f, 0.0f //top left
+	};
+	unsigned int indices[]{
+		0, 1, 3,
+		1, 2, 3
 	};
 
 	//Create VAO (Vertex Array Object)
-	unsigned int VAO, VBO;
-	glGenVertexArrays(1, &VAO);
+	unsigned int rectVAO, VAO, VBO, rectVBO;
 
-	//Create the Vertex Buffer Object VBO
-	glGenBuffers(1, &VBO);
+	//Create EBO (Element Buffer Object)
+	unsigned int EBO;
+
+	glGenVertexArrays(1, &rectVAO);
+	glBindVertexArray(rectVAO);
+
+	glGenBuffers(1, &rectVBO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, rectVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(recVertices), recVertices, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &EBO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glGenVertexArrays(1, &VAO);
 
 	//Bind the VAO | All VBOs will be stored here from now on
 	glBindVertexArray(VAO);
+
+	//Create the Vertex Buffer Object VBO
+	glGenBuffers(1, &VBO);
 
 	//Bind the buffer object to the ARRAY_BUFFER type, which is a VBO type
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -154,6 +186,8 @@ int main() {
 
 		//Draw the object
 		glUseProgram(shaderProgram);
+		glBindVertexArray(rectVAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(VAO);
 		//Draw triangle primitives, starting at index 0 on the VAO, using 3 vertices
 		glDrawArrays(GL_TRIANGLES, 0, 3);
