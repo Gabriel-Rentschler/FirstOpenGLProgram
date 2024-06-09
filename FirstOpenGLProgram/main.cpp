@@ -13,9 +13,10 @@ const char *vertexShaderSource = "#version 330 core\n"
 "}\0";
 
 const char* fragmentShaderSource = "#version 330 core\n"
+"uniform vec4 customColor;\n"
 "out vec4 RGBA;\n"
 "void main() {\n"
-"	RGBA = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"	RGBA = customColor;\n"
 "}\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -130,17 +131,17 @@ int main() {
 	};
 
 	//Create VAO (Vertex Array Object)
-	unsigned int rectVAO, VAO, VBO, rectVBO;
+	unsigned int VAO[2], VBO[2];
 
 	//Create EBO (Element Buffer Object)
 	unsigned int EBO;
 
-	glGenVertexArrays(1, &rectVAO);
-	glBindVertexArray(rectVAO);
+	glGenVertexArrays(2, VAO);
+	glBindVertexArray(VAO[0]);
 
-	glGenBuffers(1, &rectVBO);
+	glGenBuffers(2, VBO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, rectVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(recVertices), recVertices, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &EBO);
@@ -151,16 +152,11 @@ int main() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glGenVertexArrays(1, &VAO);
-
 	//Bind the VAO | All VBOs will be stored here from now on
-	glBindVertexArray(VAO);
-
-	//Create the Vertex Buffer Object VBO
-	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO[1]);
 
 	//Bind the buffer object to the ARRAY_BUFFER type, which is a VBO type
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 
 	//Copy the vertex data to GPU memory | If the data was to change a lot of times, use GL_DYNAMIC_DRAW instead
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -184,11 +180,18 @@ int main() {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// Get the green value in a sin so it gradually changes
+		float timeValue = glfwGetTime();
+		float colorValue = (sin(timeValue) / 2.0f) + 0.5f;
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "customColor");
+
 		//Draw the object
 		glUseProgram(shaderProgram);
-		glBindVertexArray(rectVAO);
+		glUniform4f(vertexColorLocation, colorValue, colorValue, 0.0f, 1.0f);
+
+		glBindVertexArray(VAO[0]);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(VAO);
+		glBindVertexArray(VAO[1]);
 		//Draw triangle primitives, starting at index 0 on the VAO, using 3 vertices
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
