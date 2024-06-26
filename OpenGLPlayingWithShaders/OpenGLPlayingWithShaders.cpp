@@ -1,5 +1,6 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
+#include"Shader.h"
 #include <iostream>
 
 const unsigned int SCR_WIDTH = 800;
@@ -94,33 +95,7 @@ int main()
 		return -1;
 	}
 
-	//\/\/\/\/\/\/\/\/\/\//
-	//      SHADERS      //
-	//\/\/\/\/\/\/\/\/\/\//
-	//Create and compile Vertex shader
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	shaderCompile(vertexShader, vertexShaderSource, "VERTEX");
-	//Create and compile fragment shader
-	unsigned int fragmentShaderOrange = glCreateShader(GL_FRAGMENT_SHADER);
-	shaderCompile(fragmentShaderOrange, fragmentShaderOrangeSource, "FRAGMENT");
-	//Create and compile fragment shader
-	unsigned int fragmentShaderYellow = glCreateShader(GL_FRAGMENT_SHADER);
-	shaderCompile(fragmentShaderYellow, fragmentShaderYellowSource, "FRAGMENT");
-	//SHADER PROGRAM
-	unsigned int shaderProgramOrange = glCreateProgram();
-	unsigned int shaderProgramYellow = glCreateProgram();
-	//Attach the shaders into the program and run the linker
-	glAttachShader(shaderProgramOrange, vertexShader);
-	glAttachShader(shaderProgramOrange, fragmentShaderOrange);
-	shaderProgramCompile(shaderProgramOrange);
-	//Attach the shaders into the program and run the linker
-	glAttachShader(shaderProgramYellow, vertexShader);
-	glAttachShader(shaderProgramYellow, fragmentShaderYellow);
-	shaderProgramCompile(shaderProgramYellow);
-	//Delete the shaders, since it is already linked to the program they won't be used anymore
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShaderOrange);
-	glDeleteShader(fragmentShaderYellow);
+	Shader firstShader("./VertexShader.txt", "./FragmentShader.txt");
 
 	//\/\/\/\/\/\/\/\/\/\//
 	//    VERTEX DATA    //
@@ -174,20 +149,8 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		//Draw the object
-		glUseProgram(shaderProgramOrange);
-
-		//Create the custom color
-		float getTime = glfwGetTime();
-		float colorVal = sin(getTime) / 2.0f + 0.5f;
-		int vertexColorLocation = glGetUniformLocation(shaderProgramOrange, "customColor");
-		glUniform4f(vertexColorLocation, 0.0f, colorVal, 0.0f, 1.0f);
-
-		glBindVertexArray(VAO[0]);
-		//Draw triangle primitives, starting at index 0 on the VAO, using 3 vertices
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glUseProgram(shaderProgramYellow);
+		firstShader.use();
+		//firstShader.setFloat("someUniform", 1.0f);
 		glBindVertexArray(VAO[1]);
 		//Draw triangle primitives, starting at index 0 on the VAO, using 3 vertices
 		glDrawArrays(GL_TRIANGLES, 0, 6);
